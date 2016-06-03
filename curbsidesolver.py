@@ -30,7 +30,7 @@ def main():
 	logging.debug(request_get_start.text)
 	response = request_get_start.json()
 	next_key = 'next'
-	# Handle the case where 'next' key has weird capitalization, i.e. 'nExt'
+	# Handle the case where 'next' key has weird capitalization -- i.e. 'nExt'
 	for resp_key in response.keys():
 		if resp_key.lower() == 'next':
 			next_key = resp_key
@@ -40,7 +40,6 @@ def main():
 		for id in response[next_key]:
 			visit_id(id)
 	print 'SECRET MESSAGE: {secret_message}'.format(secret_message=''.join(secret_message))
-		
 
 def retry_on_httperror(exc):
 	"""Re-populate the session ID in the headers dict with a new session and retry visit_id()."""
@@ -51,11 +50,14 @@ def retry_on_httperror(exc):
 		
 @retry(retry_on_exception=retry_on_httperror, wait_exponential_multiplier=1000, wait_exponential_max=10000)
 def visit_id(id_to_visit):
-	"""Issue and HTTTP GET request to the supplied id. Append the secret message if it exists. Visit other ids found in the results."""
+	"""Issue an HTTTP GET request to the supplied id. Append the secret message if it exists. Visit other ids found in the results."""
 	global headers, secret_message
 	url = urljoin('http://challenge.shopcurbside.com/', id_to_visit)
 	request_get_id = requests.get(url, headers=headers)
 	logging.debug(request_get_id.text)
+	# Session IDs are only good for 10 requests before they start returning 404 status codes.
+	# Raise the HTTPError exception if we have an expired session. 
+	# Let the retry decorator grab us a new session and retry this GET request on HTTPError.
 	request_get_id.raise_for_status()
 	response = request_get_id.json()
 	if 'secret' in response:
@@ -73,7 +75,6 @@ def visit_id(id_to_visit):
 				for id in response[next_key]:
 					visit_id(id)
 
-	
 def get_session():
 	"""Get and return a new session id."""
 	get_session_url = 'http://challenge.shopcurbside.com/get-session'
