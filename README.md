@@ -8,7 +8,7 @@
 
 ## Installing pre-requisites
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Executing in normal mode

@@ -50,7 +50,7 @@ def retry_on_httperror(exc):
 		
 @retry(retry_on_exception=retry_on_httperror, wait_exponential_multiplier=1000, wait_exponential_max=10000)
 def visit_id(id_to_visit):
-	"""Issue an HTTTP GET request to the supplied id. Append the secret message if it exists. Visit other ids found in the results."""
+	"""Issue an HTTP GET request to the supplied id. Append the secret message if it exists. Visit other ids found in the results."""
 	global headers, secret_message
 	url = urljoin('http://challenge.shopcurbside.com/', id_to_visit)
 	request_get_id = requests.get(url, headers=headers)
